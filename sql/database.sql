@@ -1,0 +1,10 @@
+CREATE DATABASE IF NOT EXISTS book_shelf_db;
+
+CREATE TABLE IF NOT EXISTS books(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255),
+    author VARCHAR(255),
+    category VARCHAR(50),
+    status VARCHAR(50),
+    added_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
