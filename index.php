@@ -50,7 +50,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Status</label>
-                            
+
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="status" value="Reading" checked>
                                 <label class="form-check-label">Reading</label>
@@ -90,7 +90,7 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
+
                         <tbody>
                             <?php
                             include 'includes/db.php';
@@ -119,7 +119,7 @@
                             }
                             ?>
                         </tbody>
-                        </tbody>
+
                     </table>
                 </div>
             </div>
