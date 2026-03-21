@@ -1,4 +1,16 @@
-<?php include "includes/db.php"; ?>
+<?php
+include "includes/db.php";
+
+$resTotal = $conn->query("SELECT COUNT(id) as total FROM books");
+$totalBooks = $resTotal->fetch_assoc()['total'];
+
+$resReading = $conn->query("SELECT COUNT(id) as total FROM books WHERE  status='Reading'");
+$readingBooks = $resReading->fetch_assoc()['total'];
+
+$resDone = $conn->query("SELECT COUNT(id) AS total FROM books WHERE status='Completed'");
+$completedBooks = $resDone->fetch_assoc()['total'];
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -34,6 +46,27 @@
 
     <div class="container py-5">
         <h2 class="text-center mb-4">My Book Shelf</h2>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white text-center p-3">
+                    <h6>Total Books</h6>
+                    <h3><?php echo $totalBooks; ?></h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-white text-center p-3">
+                    <h6>Currently Reading</h6>
+                    <h3><?php echo $readingBooks; ?></h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white text-center p-3">
+                    <h6>Completed</h6>
+                    <h3><?php echo $completedBooks; ?></h3>
+                </div>
+            </div>
+        </div>
 
         <div class="row">
             <div class="col-md-4">
