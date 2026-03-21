@@ -112,54 +112,82 @@ $completedBooks = $resDone->fetch_assoc()['total'];
             </div>
 
             <div class="col-md-8">
-                <div class="card p-4">
-                    <h5 class="mb-3">My Library</h5>
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Title</th>
-                                <th>Author</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
 
-                        <tbody>
-                            <?php
-                            include 'includes/db.php';
-                            $sql = "SELECT * FROM books ORDER BY id DESC";
-                            $result = $conn->query($sql);
+                <div class="card p-3 mb-3 shadow-sm">
+                    <form action="index.php" method="GET">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control border-0 bg-light"
+                                placeholder="Search by Title or Author..."
+                                value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
+                            <button class="btn btn-primary" type="submit">Search</button>
+                            <?php if (isset($_GET['search'])): ?>
+                                <a href="index.php" class="btn btn-outline-secondary">Clear</a>
+                            <?php endif; ?>
+                        </div>
+                    </form>
+                </div>
 
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
-                                    $statusColor = "secondary";
-                                    if ($row['status'] == 'Reading') $statusColor = "info text-dark";
-                                    if ($row['status'] == 'Completed') $statusColor = "success";
-                                    if ($row['status'] == 'Want to Read') $statusColor = "warning text-dark";
+                <div class="col-md-12">
+                    <div class="card p-4">
+                        <h5 class="mb-3">My Library</h5>
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Author</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
 
-                                    echo "<tr>";
-                                    echo "<td><strong>" . $row['title'] . "</strong></td>";
-                                    echo "<td>" . $row['author'] . "</td>";
-                                    echo "<td><span class='badge bg-$statusColor'>" . $row['status'] . "</span></td>";
-                                    echo "<td>
+                            <tbody>
+                                <?php
+                                include 'includes/db.php';
+                                $search = isset($_GET['search']) ? $_GET['search'] : '';
+
+                                if ($search != '') {
+                                    $stmt = $conn->prepare("SELECT * FROM books WHERE title LIKE ? OR author LIKE ? ORDER BY id DESC");
+                                    $searchTearm = "%$search%";
+                                    $stmt->bind_param("ss", $searchTearm, $searchTearm);
+                                    $stmt->execute();
+                                    $result = $stmt->get_result();
+                                } else {
+                                    $sql = "SELECT * FROM books ORDER BY id DESC";
+                                    $result = $conn->query($sql);
+                                }
+
+
+
+                                if ($result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        $statusColor = "secondary";
+                                        if ($row['status'] == 'Reading') $statusColor = "info text-dark";
+                                        if ($row['status'] == 'Completed') $statusColor = "success";
+                                        if ($row['status'] == 'Want to Read') $statusColor = "warning text-dark";
+
+                                        echo "<tr>";
+                                        echo "<td><strong>" . $row['title'] . "</strong></td>";
+                                        echo "<td>" . $row['author'] . "</td>";
+                                        echo "<td><span class='badge bg-$statusColor'>" . $row['status'] . "</span></td>";
+                                        echo "<td>
                                                 <a href='edit_book.php?id=" . $row['id'] . "' class='btn btn-sm btn-outline-warning'>Edit</a>
                                                 <a href='delete_book.php?id=" . $row['id'] . "' class='btn btn-sm btn-outline-danger' onclick=\"return confirm('Delete this book?')\">Delete</a>
                                          </td>";
-                                    echo "</tr>";
+                                        echo "</tr>";
+                                    }
+                                } else {
+                                    echo "<tr><td colspan='4' class='text-center text-muted'>No books on your shelf yet.</td></tr>";
                                 }
-                            } else {
-                                echo "<tr><td colspan='4' class='text-center text-muted'>No books on your shelf yet.</td></tr>";
-                            }
-                            ?>
-                        </tbody>
+                                ?>
+                            </tbody>
 
-                    </table>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
