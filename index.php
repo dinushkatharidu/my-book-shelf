@@ -119,6 +119,14 @@ $completedBooks = $resDone->fetch_assoc()['total'];
                             <input type="text" name="search" class="form-control border-0 bg-light"
                                 placeholder="Search by Title or Author..."
                                 value="<?php echo isset($_GET['search']) ? $_GET['search'] : ''; ?>">
+
+                            <select name="status_filter" class="form-select border-0 bg-light" style="max-width: 150px;">
+                                <option value="">All Status</option>
+                                <option value="Reading" <?php if (isset($_GET['status_filter']) && $_GET['status_filter'] == 'Reading') echo 'selected'; ?>>Reading</option>
+                                <option value="Completed" <?php if (isset($_GET['status_filter']) && $_GET['status_filter'] == 'Completed') echo 'selected'; ?>>Completed</option>
+                                <option value="Want to Read" <?php if (isset($_GET['status_filter']) && $_GET['status_filter'] == 'Want to Read') echo 'selected'; ?>>Want to Read</option>
+                            </select>
+
                             <button class="btn btn-primary" type="submit">Search</button>
                             <?php if (isset($_GET['search'])): ?>
                                 <a href="index.php" class="btn btn-outline-secondary">Clear</a>
@@ -144,17 +152,39 @@ $completedBooks = $resDone->fetch_assoc()['total'];
                                 <?php
                                 include 'includes/db.php';
                                 $search = isset($_GET['search']) ? $_GET['search'] : '';
+                                $filter = isset($_GET['status_filter']) ? $_GET['status_filter']: '';
 
-                                if ($search != '') {
-                                    $stmt = $conn->prepare("SELECT * FROM books WHERE title LIKE ? OR author LIKE ? ORDER BY id DESC");
-                                    $searchTearm = "%$search%";
-                                    $stmt->bind_param("ss", $searchTearm, $searchTearm);
-                                    $stmt->execute();
-                                    $result = $stmt->get_result();
-                                } else {
-                                    $sql = "SELECT * FROM books ORDER BY id DESC";
-                                    $result = $conn->query($sql);
+                                $query = "SELECT * FROM books WHERE (title LIKE ? OR author LIKE ?  )";    
+
+                                if($filter != ''){
+                                    $query .= " AND status = ?";
                                 }
+
+                                $query .= " ORDER BY id DESC";
+
+                                $stmt = $conn->prepare($query);
+                                $searchTearm = "%$search%";
+
+                                if($filter != ''){
+                                    $stmt->bind_param("sss", $searchTearm, $searchTearm, $filter);
+
+                                }else {
+                                    $stmt->bind_param("ss", $searchTearm, $searchTearm);
+                                }
+
+                                $stmt->execute();
+                                $result = $stmt->get_result();
+
+                                // if ($search != '') {
+                                //     $stmt = $conn->prepare("SELECT * FROM books WHERE title LIKE ? OR author LIKE ? ORDER BY id DESC");
+                                //     $searchTearm = "%$search%";
+                                //     $stmt->bind_param("ss", $searchTearm, $searchTearm);
+                                //     $stmt->execute();
+                                //     $result = $stmt->get_result();
+                                // } else {
+                                //     $sql = "SELECT * FROM books ORDER BY id DESC";
+                                //     $result = $conn->query($sql);
+                                // }
 
 
 
