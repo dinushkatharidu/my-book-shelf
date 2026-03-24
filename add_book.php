@@ -1,4 +1,6 @@
 <?php
+
+session_start();
 include 'includes/db.php';
 
 if (isset($_POST['save_book'])) {
@@ -8,8 +10,12 @@ if (isset($_POST['save_book'])) {
     $category = $_POST['category'];
     $status = $_POST['status'];
 
-    $stmt = $conn->prepare("INSERT INTO books(title, author, category, status) VALUES(?, ?, ?, ?) ");
-    $stmt->bind_param("ssss", $title, $author, $category, $status);
+    //For authentication 
+    $user_id = $_SESSION['user_id'];
+
+
+    $stmt = $conn->prepare("INSERT INTO books(title, author, category, status, user_id) VALUES(?, ?, ?, ?, ?) ");
+    $stmt->bind_param("ssssi", $title, $author, $category, $status, $user_id);
 
     if ($stmt->execute()) {
         $stmt->close();

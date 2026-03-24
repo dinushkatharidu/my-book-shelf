@@ -1,13 +1,22 @@
 <?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit();
+}
+
 include "includes/db.php";
 
-$resTotal = $conn->query("SELECT COUNT(id) as total FROM books");
+
+$u_id = $_SESSION['user_id'];
+
+$resTotal = $conn->query("SELECT COUNT(id) as total FROM books WHERE user_id = $u_id");
 $totalBooks = $resTotal->fetch_assoc()['total'];
 
-$resReading = $conn->query("SELECT COUNT(id) as total FROM books WHERE  status='Reading'");
+$resReading = $conn->query("SELECT COUNT(id) as total FROM books  WHERE user_id = $u_id AND status='Reading'");
 $readingBooks = $resReading->fetch_assoc()['total'];
 
-$resDone = $conn->query("SELECT COUNT(id) AS total FROM books WHERE status='Completed'");
+$resDone = $conn->query("SELECT COUNT(id) AS total FROM books WHERE user_id = $u_id AND status='Completed'");
 $completedBooks = $resDone->fetch_assoc()['total'];
 
 ?>
@@ -152,11 +161,14 @@ $completedBooks = $resDone->fetch_assoc()['total'];
                                 <?php
                                 include 'includes/db.php';
                                 $search = isset($_GET['search']) ? $_GET['search'] : '';
-                                $filter = isset($_GET['status_filter']) ? $_GET['status_filter']: '';
+                                $filter = isset($_GET['status_filter']) ? $_GET['status_filter'] : '';
 
-                                $query = "SELECT * FROM books WHERE (title LIKE ? OR author LIKE ?  )";    
+                                $user_id = $_SESSION['user_id'];
 
-                                if($filter != ''){
+
+                                $query = "SELECT * FROM books WHERE user_id = ? AND (title LIKE ? OR author LIKE ?  )";
+
+                                if ($filter != '') {
                                     $query .= " AND status = ?";
                                 }
 
@@ -165,11 +177,10 @@ $completedBooks = $resDone->fetch_assoc()['total'];
                                 $stmt = $conn->prepare($query);
                                 $searchTearm = "%$search%";
 
-                                if($filter != ''){
-                                    $stmt->bind_param("sss", $searchTearm, $searchTearm, $filter);
-
-                                }else {
-                                    $stmt->bind_param("ss", $searchTearm, $searchTearm);
+                                if ($filter != '') {
+                                    $stmt->bind_param("isss", $user_id, $searchTearm, $searchTearm, $filter);
+                                } else {
+                                    $stmt->bind_param("iss", $user_id, $searchTearm, $searchTearm);
                                 }
 
                                 $stmt->execute();

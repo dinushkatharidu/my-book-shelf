@@ -8,3 +8,16 @@ CREATE TABLE IF NOT EXISTS books(
     status VARCHAR(50),
     added_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add new column for table (for Authentication)
+
+ALTER TABLE books ADD COLUMN user_id INT;
+
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP 
+);
+
+
